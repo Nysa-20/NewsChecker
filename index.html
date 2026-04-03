@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriTrust AI | News Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+
+    <nav class="bg-white border-b px-8 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-2 font-bold text-xl text-blue-600">
+            <i class="fas fa-shield-halved text-2xl"></i>
+            <span>VeriTrust AI</span>
+        </div>
+        <div class="text-sm text-slate-500 font-medium">Hackathon Demo v1.0</div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-12 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <header>
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-800">Analyze News in Seconds</h1>
+                <p class="text-slate-500 mt-2 text-lg">Uncover bias and misinformation using neural network analysis.</p>
+            </header>
+
+            <div class="bg-white rounded-2xl shadow-md border p-6">
+                <textarea id="newsInput" class="w-full h-64 p-4 border-none focus:ring-0 text-lg placeholder-slate-300 outline-none" 
+                    placeholder="Paste a suspicious headline or article here..."></textarea>
+                
+                <div class="flex justify-between items-center mt-4 border-t pt-6">
+                    <div class="flex gap-2">
+                        <button onclick="setExample(0)" class="text-xs bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full transition font-semibold text-slate-600">Sample: Fake</button>
+                        <button onclick="setExample(1)" class="text-xs bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full transition font-semibold text-slate-600">Sample: Real</button>
+                    </div>
+                    <button id="analyzeBtn" onclick="analyzeNews()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl font-bold flex items-center gap-2 transition transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-200">
+                        Analyze Now
+                    </button>
+                </div>
+            </div>
+            <div id="errorMessage" class="hidden text-red-500 font-medium flex items-center gap-2 italic"></div>
+        </div>
+
+        <div id="resultContainer" class="hidden">
+            <div id="resultCard" class="bg-white rounded-2xl shadow-2xl border overflow-hidden">
+                <div id="statusHeader" class="p-8 text-white text-center">
+                    <i id="statusIcon" class="fas fa-circle-check text-5xl mb-3"></i>
+                    <h2 id="predictionText" class="text-3xl font-black uppercase tracking-tighter">REAL</h2>
+                    <p id="confidenceText" class="opacity-90 font-medium tracking-wide">98% Confidence</p>
+                </div>
+
+                <div class="p-6 space-y-5">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <div class="flex items-center gap-2 text-slate-400 font-medium"><i class="fas fa-scale-balanced w-5"></i> Political Bias</div>
+                        <span id="biasText" class="font-bold text-slate-700">Neutral</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <div class="flex items-center gap-2 text-slate-400 font-medium"><i class="fas fa-face-smile w-5"></i> Emotional Tone</div>
+                        <span id="toneText" class="font-bold text-slate-700">Objective</span>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Suspicious Patterns</h4>
+                        <div id="keywordList" class="flex flex-wrap gap-2">
+                            </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <p id="reasoningText" class="text-xs text-slate-500 leading-relaxed italic"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="placeholder" class="bg-blue-50 border-2 border-dashed border-blue-100 rounded-2xl p-10 flex flex-col items-center justify-center text-center">
+            <div class="bg-white p-4 rounded-full shadow-sm mb-4 text-blue-400">
+                <i class="fas fa-robot text-3xl"></i>
+            </div>
+            <h3 class="font-bold text-blue-900">Awaiting Input</h3>
+            <p class="text-sm text-blue-700 opacity-60 mt-2 leading-relaxed">Paste text and click analyze to see the AI magic happen.</p>
+        </div>
+
+    </main>
+
+    <script>
+        const examples = [
+            "SHOCKING EXPOSED: The government is hiding a secret alien base in the desert and the mainstream media refuses to report on this unbelievable disaster!",
+            "The Federal Reserve announced a minor adjustment to interest rates today, citing a 0.2% decrease in inflationary pressure for the final quarter."
+        ];
+
+        function setExample(i) {
+            document.getElementById('newsInput').value = examples[i];
+        }
+
+        async function analyzeNews() {
+            const text = document.getElementById('newsInput').value;
+            const btn = document.getElementById('analyzeBtn');
+            const err = document.getElementById('errorMessage');
+            
+            if (!text || text.length < 20) {
+                err.innerText = "Please enter at least 20 characters of news text.";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            err.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Analyzing...';
+
+            try {
+                const response = await fetch('http://localhost:8000/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!response.ok) throw new Error("Backend connection failed.");
+                const data = await response.json();
+                displayResults(data);
+            } catch (e) {
+                err.innerText = "Error: Make sure your Python backend is running at localhost:8000";
+                err.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Analyze Now';
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('resultContainer').classList.remove('hidden');
+
+            const isFake = data.prediction === "FAKE";
+            const header = document.getElementById('statusHeader');
+            const icon = document.getElementById('statusIcon');
+            
+            // UI Update
+            header.className = `p-8 text-white text-center transition-colors duration-500 ${isFake ? 'bg-red-500' : 'bg-emerald-500'}`;
+            icon.className = `fas ${isFake ? 'fa-triangle-exclamation' : 'fa-circle-check'} text-5xl mb-3 animate-bounce`;
+            
+            document.getElementById('predictionText').innerText = data.prediction;
+            document.getElementById('confidenceText').innerText = `${data.confidence}% Confidence Score`;
+            document.getElementById('biasText').innerText = data.bias;
+            document.getElementById('toneText').innerText = data.tone;
+            document.getElementById('reasoningText').innerText = `"${data.reasoning}"`;
+
+            const keywordContainer = document.getElementById('keywordList');
+            keywordContainer.innerHTML = '';
+            if (data.keywords.length > 0) {
+                data.keywords.forEach(k => {
+                    const span = document.createElement('span');
+                    span.className = "bg-amber-100 text-amber-700 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-tighter";
+                    span.innerText = k;
+                    keywordContainer.appendChild(span);
+                });
+            } else {
+                keywordContainer.innerHTML = '<span class="text-slate-400 text-xs italic">Clean - No sensationalism detected</span>';
+            }
+        }
+    </script>
+</body>
+</html>
