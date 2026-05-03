@@ -8,9 +8,18 @@ A production-ready hackathon project that uses NLP to analyze news for misinform
 truthlens/
 ├── backend/
 │   ├── main.py          # FastAPI application
-│   ├── model_utils.py      # NLP analysis logic (TextBlob + heuristics)
+│   ├── analyzer.py      # NLP analysis logic (TextBlob + heuristics)
 │   └── requirements.txt
-├── index.html
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx      # Main React application
+│   │   ├── main.jsx     # Entry point
+│   │   └── index.css    # Global styles
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   └── postcss.config.js
 └── README.md
 ```
 
