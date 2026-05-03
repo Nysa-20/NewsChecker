@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Light mode */
+  --bg-base: #F7F6F3;
+  --bg-surface: #FFFFFF;
+  --bg-surface-2: #F2F1EE;
+  --bg-surface-3: #E8E7E3;
+  --text-primary: #1A1917;
+  --text-secondary: #6B6A66;
+  --text-tertiary: #9E9D99;
+  --border: #E0DED9;
+  --border-strong: #C8C7C2;
+
+  --accent-red: #D94A3C;
+  --accent-red-bg: #FDF0EF;
+  --accent-green: #2E7D52;
+  --accent-green-bg: #EEF7F2;
+  --accent-blue: #1C5FA8;
+  --accent-blue-bg: #EBF3FD;
+  --accent-amber: #9B6200;
+  --accent-amber-bg: #FDF6E8;
+  --accent-purple: #5B3FC4;
+  --accent-purple-bg: #F2EFFE;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-base: #131211;
+    --bg-surface: #1C1B19;
+    --bg-surface-2: #242320;
+    --bg-surface-3: #2E2D2A;
+    --text-primary: #F2F0EC;
+    --text-secondary: #A8A7A3;
+    --text-tertiary: #6B6A66;
+    --border: #2E2D2A;
+    --border-strong: #3D3C39;
+
+    --accent-red: #F4736A;
+    --accent-red-bg: #2A1917;
+    --accent-green: #4DB87B;
+    --accent-green-bg: #0E2318;
+    --accent-blue: #5B9BE8;
+    --accent-blue-bg: #0D1F35;
+    --accent-amber: #F0B547;
+    --accent-amber-bg: #261C07;
+    --accent-purple: #9980F5;
+    --accent-purple-bg: #1A1430;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+textarea, input, button {
+  font-family: var(--font-sans);
+}
+
+textarea:focus, input:focus {
+  outline: none;
+}
+
+::selection {
+  background: var(--accent-blue-bg);
+  color: var(--accent-blue);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
